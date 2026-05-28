@@ -1,0 +1,32 @@
+# ==============================================================================
+# KLegally Worker Service - Production Multi-Stage Dockerfile
+# ==============================================================================
+FROM astral-sh/uv:python3.13-bookworm-slim AS builder
+
+WORKDIR /app
+
+# Enable Python bytecode compilation
+ENV UV_COMPILE_BYTECODE=1
+
+# Copy shared packages and worker module to compile local dependencies
+COPY shared/ /app/shared/
+COPY worker/ /app/worker/
+
+# Build and sync virtual environment using uv
+WORKDIR /app/worker
+RUN uv sync --no-dev
+
+# Final light-weight Python runtime image
+FROM python:3.13-slim-bookworm
+
+WORKDIR /app
+
+# Copy the built virtual environment and application code from builder
+COPY --from=builder /app /app
+
+# Set PATH to prioritize the virtualenv executables
+ENV PATH="/app/worker/.venv/bin:$PATH"
+ENV PYTHONUNBUFFERED=1
+
+# Start worker poller process
+CMD ["python", "main.py"]
