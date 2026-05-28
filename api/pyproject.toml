@@ -1,0 +1,18 @@
+[project]
+name = "api"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "email-validator>=2.3.0",
+    "httpx>=0.28.1",
+    "motor>=3.7.1",
+    "shared-auth",
+    "shared-queue",
+    "uvicorn>=0.48.0",
+]
+
+[tool.uv.sources]
+shared-auth = { path = "../shared/auth", editable = true }
+shared-queue = { path = "../shared/queue", editable = true }
