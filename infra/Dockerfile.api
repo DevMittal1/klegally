@@ -1,9 +1,12 @@
 # ==============================================================================
 # KLegally API Service - Production Multi-Stage Dockerfile
 # ==============================================================================
-FROM astral-sh/uv:python3.13-bookworm-slim AS builder
+FROM python:3.13-slim-bookworm AS builder
 
 WORKDIR /app
+
+# Install uv via pip (guarantees universal portability and avoids image scope failures)
+RUN pip install --no-cache-dir uv
 
 # Enable Python bytecode compilation
 ENV UV_COMPILE_BYTECODE=1

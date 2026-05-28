@@ -11,8 +11,12 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=8000
+      - MONGODB_URL=mongodb://host.docker.internal:27017
+      - REDIS_URL=redis://host.docker.internal:6379
     env_file:
       - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - klegally-network
 
@@ -21,8 +25,12 @@ services:
       context: .
       dockerfile: infra/Dockerfile.worker
     container_name: klegally-worker
+    environment:
+      - REDIS_URL=redis://host.docker.internal:6379
     env_file:
       - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - klegally-network
 
