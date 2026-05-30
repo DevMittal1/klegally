@@ -1,5 +1,5 @@
-from typing import Optional
-from fastapi import Depends, Header
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
 
 from auth.exceptions.auth import (
     UnauthorizedException,
@@ -8,19 +8,14 @@ from auth.jwt.verification import (
     verify_access_token,
 )
 
+# Standard OAuth2 scheme specifying standard login endpoint
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
-async def get_current_user(
-    authorization: Optional[str] = Header(None),
+
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
 ):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise UnauthorizedException()
-
-    token = authorization.replace(
-        "Bearer ",
-        "",
-    )
-
-    # verify_access_token is a synchronous operation
+    # Verify the Bearer token
     payload = verify_access_token(token)
 
     if not payload:

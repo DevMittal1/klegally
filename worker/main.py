@@ -7,7 +7,10 @@ from redis.asyncio import Redis
 
 # Add local path and shared queue path to sys.path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../shared/queue"))
+sys.path.insert(
+    0,
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../shared/queue"),
+)
 
 from worker.handlers import SendWelcomeEmailHandler
 from worker.infrastructure.email.mailjet import MailjetEmailProvider
@@ -32,21 +35,23 @@ async def main():
     print("=" * 60)
     print(" KLEGALLY BACKGROUND WORKER BOOTING UP")
     print(f" Redis Broker: {settings.REDIS_URL}")
-    
+
     # 1. Dependency Injection setup
-    if settings.MJ_APIKEY_PUBLIC and settings.MJ_APIKEY_PRIVATE and settings.MJ_SENDER_EMAIL:
+    email_provider = None
+    if (
+        settings.MJ_APIKEY_PUBLIC
+        and settings.MJ_APIKEY_PRIVATE
+        and settings.MJ_SENDER_EMAIL
+    ):
         print("[Mailer] Injecting Async MailjetEmailProvider...")
         email_provider = MailjetEmailProvider(
             api_key_public=settings.MJ_APIKEY_PUBLIC,
             api_key_private=settings.MJ_APIKEY_PRIVATE,
-            sender_email=settings.MJ_SENDER_EMAIL
+            sender_email=settings.MJ_SENDER_EMAIL,
         )
-    # else:
-    #     print("[Mailer] Injecting PlaceholderEmailProvider (Offline Fallback)...")
-    #     email_provider = PlaceholderEmailProvider()
-        
+
     print("=" * 60)
-    
+
     email_handler = SendWelcomeEmailHandler(email_provider)
 
     # 2. Establish connection to Redis

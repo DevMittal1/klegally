@@ -1,5 +1,6 @@
-from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Annotated, Optional
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.security import OAuth2PasswordRequestForm
 
 from api.schemas.auth import LoginRequest, RefreshTokenRequest, TokenResponse, RegisterRequest, RegisterResponse
 from api.services.auth import authenticate_user, register_user
@@ -26,11 +27,49 @@ async def register(
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(request: LoginRequest):
+async def login(
+    request: Request,
+):
     """
     Authenticate a user and return access and refresh tokens.
+    Supports both standard JSON payloads (LoginRequest) and Form URL-encoded data
+    (such as FastAPI Swagger UI /docs Authorize logins using standard OAuth2 specs).
     """
-    return await authenticate_user(request)
+    content_type = request.headers.get("content-type", "")
+    email = None
+    password = None
+
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+            email = body.get("email")
+            password = body.get("password")
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid JSON payload",
+            )
+    else:
+        # Parse Form URL-encoded parameters
+        try:
+            form = await request.form()
+            email = form.get("username")  # OAuth2 standard Form maps email to username
+            password = form.get("password")
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid form data payload",
+            )
+
+    if not email or not password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Missing email (username) or password",
+        )
+
+    # Instantiate LoginRequest schema internally and call the service
+    login_data = LoginRequest(email=email, password=password)
+    return await authenticate_user(login_data)
 
 
 @router.post("/refresh")

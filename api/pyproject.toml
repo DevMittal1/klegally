@@ -5,9 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "boto3>=1.43.17",
     "email-validator>=2.3.0",
     "httpx>=0.28.1",
     "motor>=3.7.1",
+    "python-multipart>=0.0.29",
     "shared-auth",
     "shared-queue",
     "uvicorn>=0.48.0",

@@ -14,6 +14,13 @@ class ApiSettings(BaseSettings):
     # Redis configurations
     REDIS_URL: str = "redis://localhost:6379"
 
+    # S3 / AWS configurations
+    S3_BUCKET: str = "klegally-documents"
+    S3_ENDPOINT_URL: str | None = None
+    AWS_ACCESS_KEY_ID: str | None = None
+    AWS_SECRET_ACCESS_KEY: str | None = None
+    AWS_REGION: str = "us-east-1"
+
     class Config:
         # Search locally, parent folder (monorepo root), or grandfather folders
         env_file = [".env", "../.env", "../../.env", "../../../.env"]

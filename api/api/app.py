@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from api.config import api_settings
-from api.routers import auth, users
+from api.routers import auth, users, documents
 from api.services.db import seed_database
 from api.infrastructure.queue import close_redis_connection
 
@@ -30,6 +30,7 @@ async def shutdown_event():
 # Include sub-routers
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(documents.router)
 
 
 @app.get("/")

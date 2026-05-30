@@ -30,6 +30,19 @@ services:
     networks:
       - klegally-network
 
+  ingestion-worker:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile.worker
+    container_name: klegally-ingestion-worker
+    command: ["python", "main_ingestion.py"]
+    env_file:
+      - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - klegally-network
+
 networks:
   klegally-network:
     driver: bridge
